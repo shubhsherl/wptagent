@@ -30,13 +30,11 @@ CHROME_COMMAND_LINE_OPTIONS = [
     '--disable-component-update',
     '--disable-default-apps',
     '--disable-domain-reliability',
-    '--disable-fetching-hints-at-navigation-start',
     '--disable-hang-monitor',
     '--disable-ipc-flooding-protection',
     '--disable-prompt-on-repost',
     '--disable-renderer-backgrounding',
     '--disable-site-isolation-trials',
-    '--disable-sync',
     '--metrics-recording-only',
     '--mute-audio',
     '--new-window',
@@ -67,7 +65,6 @@ DISABLE_CHROME_FEATURES = [
     'InterestFeedContentSuggestions',
     'MediaRouter',
     'OfflinePagesPrefetching',
-    'OptimizationHints',
     'Translate',
 ]
 
