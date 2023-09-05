@@ -524,7 +524,7 @@ class DesktopBrowser(BaseBrowser):
                             '-codec:v', 'libx264rgb', '-crf', '0', '-preset', 'ultrafast',
                             task['video_file']]
                 elif  platform.system() == 'Windows':
-                    args = ['ffmpeg', '-f', 'gdigrab', '-probesize', '50M', '-analyzeduration', '50M', '-video_size',
+                    args = ['ffmpeg', '-f', 'gdigrab', '-probesize', '500M', '-analyzeduration', '500M', '-video_size',
                             '{0:d}x{1:d}'.format(task['width'], task['height']),
                             '-framerate', str(self.job['fps']),
                             '-draw_mouse', '0', '-i', str(self.job['capture_display']),
