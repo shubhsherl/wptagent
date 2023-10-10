@@ -871,7 +871,8 @@ class DevtoolsBrowser(object):
                 command.extend(['--screenEmulation.disabled'])
             elif 'mobile' not in self.job or not self.job['mobile']:
                 command.extend([form_factor_command, 'desktop'])
-                command.extend(['--screenEmulation.disabled'])
+                command.extend(['--preset', 'desktop'])
+                # command.extend(['--screenEmulation.disabled'])
             if 'user_agent_string' in self.job:
                 sanitized_user_agent = re.sub(r'[^a-zA-Z0-9_\-.;:/()\[\] ]+', '', self.job['user_agent_string'])
                 command.append('--chrome-flags="--user-agent=\'{0}\'"'.format(sanitized_user_agent))
