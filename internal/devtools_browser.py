@@ -839,7 +839,8 @@ class DevtoolsBrowser(object):
                        '--disable-full-page-screenshot',
                        '--max-wait-for-load', str(int(time_limit * 1000)),
                        '--hostname', '127.0.0.1',
-                       '--port', str(task['port']),
+                        # 0: randmoly use any port    
+                       '--port', str(0), # str(task['port']),
                        '--output', 'html',
                        '--output', 'json',
                        '--output-path', '"{0}"'.format(output_path)]
