@@ -58,7 +58,7 @@ class WPTAgent(object):
         if sys.platform != "win32":
             signal.signal(signal.SIGHUP, self.signal_handler)
         atexit.register(self.cleanup)
-        self.image_magick = {'convert': 'magick convert', 'compare': 'magick compare', 'mogrify': 'magick mogrify'}
+        self.image_magick = {'convert': 'convert', 'compare': 'compare', 'mogrify': 'mogrify'}
         if platform.system() == "Windows":
             paths = [os.getenv('ProgramFiles'), os.getenv('ProgramFiles(x86)')]
             for path in paths:
