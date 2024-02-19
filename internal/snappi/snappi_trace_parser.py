@@ -30,19 +30,19 @@ def extract_navigation_start(trace_data):
             return event
     return None
 
-def snappi_parse_trace(trace_file_path):
-    with open(trace_file_path, "r") as file:
-        trace_data_json = json.load(file)
-        trace_data_filtered = filter_trace_events(trace_data_json, event_names)
-        navigation_start_event = extract_navigation_start(trace_data_filtered)
-        rects = parse_rectangles(trace_data_filtered, navigation_start_event["ts"])
-        result = generate_page_events(trace_data_filtered, rects, navigation_start_event, event_names)
-        output = {
-            "rects": rects,
-            "pageEvents": result["page_events"]
-        }
-        
-        return output
+def snappi_parse_trace(trace_file_dict):
+    # with open(trace_file_path, "r") as file:
+    trace_data_json = json.load(trace_file_dict)
+    trace_data_filtered = filter_trace_events(trace_data_json, event_names)
+    navigation_start_event = extract_navigation_start(trace_data_filtered)
+    rects = parse_rectangles(trace_data_filtered, navigation_start_event["ts"])
+    result = generate_page_events(trace_data_filtered, rects, navigation_start_event, event_names)
+    output = {
+        "rects": rects,
+        "pageEvents": result["page_events"]
+    }
+    
+    return output
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
