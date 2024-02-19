@@ -62,7 +62,7 @@ if __name__ == "__main__":
             "pageEvents": result["page_events"]
         }
 
-        if output_graph_file_path is not None:
-            plot_rects(rects, output_graph_file_path)
+        # if output_graph_file_path is not None:
+        #     plot_rects(rects, output_graph_file_path)
 
         print(json.dumps(output, indent=2))
