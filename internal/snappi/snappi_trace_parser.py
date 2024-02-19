@@ -32,8 +32,7 @@ def extract_navigation_start(trace_data):
 
 def snappi_parse_trace(trace_file_dict):
     # with open(trace_file_path, "r") as file:
-    trace_data_json = json.dumps(trace_file_dict)
-    trace_data_filtered = filter_trace_events(trace_data_json, event_names)
+    trace_data_filtered = filter_trace_events(trace_file_dict, event_names)
     navigation_start_event = extract_navigation_start(trace_data_filtered)
     rects = parse_rectangles(trace_data_filtered, navigation_start_event["ts"])
     result = generate_page_events(trace_data_filtered, rects, navigation_start_event, event_names)
