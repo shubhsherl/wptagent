@@ -592,7 +592,7 @@ class ProcessTest(object):
         """Extract and merge page data from snappi trace events.
             TODO: looping over all trace events again here, must be a better place for this.
         """
-        from snappi import snappi_trace_parser
+        from internal.snappi import snappi_trace_parser
         try:
             page_data = self.data['pageData']
             metrics_file = os.path.join(self.task['dir'], self.prefix + '_trace.json.gz')
