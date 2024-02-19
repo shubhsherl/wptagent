@@ -37,8 +37,8 @@ def snappi_parse_trace(trace_file_dict):
     rects = parse_rectangles(trace_data_filtered, navigation_start_event["ts"])
     result = generate_page_events(trace_data_filtered, rects, navigation_start_event, event_names)
     output = {
-        "rects": rects,
-        "pageEvents": result["page_events"]
+        "snappi_rects": rects,
+        "snappi_pageEvents": result["page_events"]
     }
     
     return output
