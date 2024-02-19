@@ -1,7 +1,7 @@
 import sys
 import json
-from snappi_rects_parser import parse_rectangles
-from snappi_page_events_generator import generate_page_events
+from internal.snappi.snappi_rects_parser import parse_rectangles
+from internal.snappi.snappi_page_events_generator import generate_page_events
 # from image_plotter import plot_rects
 
 event_names = [
