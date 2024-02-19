@@ -1,17 +1,18 @@
 import sys
 import json
-from internal.snappi.snappi_rects_parser import parse_rectangles
-from internal.snappi.snappi_page_events_generator import generate_page_events
-# from image_plotter import plot_rects
+if __name__ == "__main__":
+    # Run this code if the file is executed as the main script
+    from snappi_rects_parser import parse_rectangles
+    from snappi_page_events_generator import generate_page_events
+    from image_plotter import plot_rects
+else:
+    from internal.snappi.snappi_rects_parser import parse_rectangles
+    from internal.snappi.snappi_page_events_generator import generate_page_events
 
 event_names = [
-    "DOMContentLoaded", "firstContentfulPaint",
-    "firstMeaningfulPaint", "firstPaint", "firstImagePaint",
-    "LargestTextPaint::Candidate","Layout", "Paint", "CompositeLayers",
-    "ParseHTML", "ParseCSS", "UpdateLayoutTree", "domInteractive",
-    "domContentLoadedEventStart", "FrameStartedLoading", "FunctionCall",
-    "WebContentsImpl::DidNavigateMainFramePreCommit", "domComplete",
-    "loadEventEnd"
+     "firstContentfulPaint","firstMeaningfulPaint", "firstPaint",
+    "LargestTextPaint::Candidate","UpdateLayoutTree",
+     "FrameStartedLoading", "ResourceReceiveResponse"
 ]
 
 def filter_trace_events(trace_data, event_names):
@@ -31,7 +32,6 @@ def extract_navigation_start(trace_data):
     return None
 
 def snappi_parse_trace(trace_file_dict):
-    # with open(trace_file_path, "r") as file:
     trace_data_filtered = filter_trace_events(trace_file_dict, event_names)
     navigation_start_event = extract_navigation_start(trace_data_filtered)
     rects = parse_rectangles(trace_data_filtered, navigation_start_event["ts"])
@@ -62,7 +62,7 @@ if __name__ == "__main__":
             "pageEvents": result["page_events"]
         }
 
-        # if output_graph_file_path is not None:
-        #     plot_rects(rects, output_graph_file_path)
+        if output_graph_file_path is not None:
+            plot_rects(rects, output_graph_file_path)
 
         print(json.dumps(output, indent=2))
