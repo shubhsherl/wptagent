@@ -586,8 +586,6 @@ class ProcessTest(object):
                     pass
         except Exception:
             logging.exception('Error merging trace page data')
-<<<<<<< Updated upstream
-=======
             
     def snappi_merge_trace_page_data(self):
         """Extract and merge page data from snappi trace events.
@@ -606,7 +604,6 @@ class ProcessTest(object):
                             page_data[key] = snappi_metrics[key]
         except Exception:
             logging.exception('Error merging snappi trace page data')
->>>>>>> Stashed changes
 
     def merge_priority_streams(self):
         """Merge the list of HTTP/2 priority-only stream data"""
