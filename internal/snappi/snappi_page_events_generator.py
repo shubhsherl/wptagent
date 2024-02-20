@@ -68,7 +68,7 @@ def add_navigation_start_event_info(event, frame, result):
 def generate_page_events(trace_data, rects, navigation_start_event, event_names):
     largest_area = 0
     snappi_lcp = None
-    longest_event = None
+    all_images_painted = None
     navigation_start_ts = navigation_start_event["ts"]
 
     found_events = {}
@@ -98,8 +98,8 @@ def generate_page_events(trace_data, rects, navigation_start_event, event_names)
             largest_area = area
             snappi_lcp = events[0]
 
-        if not longest_event or events[0]["timestamp"] > longest_event["timestamp"]:
-            longest_event = events[0]
+        if not all_images_painted or events[0]["timestamp"] > all_images_painted["timestamp"]:
+            all_images_painted = events[0]
 
     for event_name, event_info in found_events.items():
         if event_name == "navigationStart":
@@ -133,13 +133,13 @@ def generate_page_events(trace_data, rects, navigation_start_event, event_names)
             "data": snappi_lcp,
         })
 
-    if longest_event:
+    if all_images_painted:
         result["page_events"].append({
             "event_name": "allImagesPainted",
-            "timestamp": round(longest_event["timestamp"], 2),
+            "timestamp": round(all_images_painted["timestamp"], 2),
             "data": {
-                "imageUrl": longest_event["imageUrl"],
-                "size": longest_event["size"]
+                "imageUrl": all_images_painted["imageUrl"],
+                "size": all_images_painted["size"]
             }
         })
 
