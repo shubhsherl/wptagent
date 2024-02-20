@@ -72,6 +72,7 @@ class ProcessTest(object):
         self.merge_crux_data()
         self.merge_lighthouse_data()
         self.merge_trace_page_data()
+        self.snappi_merge_trace_page_data()
 
         # Mark the data as having been processed so the server can know not to re-process it
         page_data['edge-processed'] = True
