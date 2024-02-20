@@ -72,6 +72,7 @@ class ProcessTest(object):
         self.merge_crux_data()
         self.merge_lighthouse_data()
         self.merge_trace_page_data()
+        self.snappi_merge_trace_page_data()
 
         # Mark the data as having been processed so the server can know not to re-process it
         page_data['edge-processed'] = True
@@ -586,6 +587,28 @@ class ProcessTest(object):
                     pass
         except Exception:
             logging.exception('Error merging trace page data')
+            
+    def snappi_merge_trace_page_data(self):
+        """Extract and merge page data from snappi trace events.
+            TODO: looping over all trace events again here, must be a better place for this.
+        """
+        from internal.snappi import snappi_trace_parser
+        try:
+            page_data = self.data['pageData']
+            metrics_file = os.path.join(self.task['dir'], self.prefix + '_trace.json.gz')
+            if os.path.isfile(metrics_file):
+                with gzip.open(metrics_file, GZIP_READ_TEXT) as f:
+                    trace_metrics = json.load(f)
+                    snappi_metrics = snappi_trace_parser.snappi_parse_trace(trace_metrics)
+                    if snappi_metrics:
+                        for key in snappi_metrics:
+                            page_data[key] = snappi_metrics[key]
+                try:
+                    os.unlink(metrics_file)
+                except Exception:
+                    pass
+        except Exception:
+            logging.exception('Error merging snappi trace page data')
 
     def merge_priority_streams(self):
         """Merge the list of HTTP/2 priority-only stream data"""
