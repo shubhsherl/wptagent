@@ -603,10 +603,6 @@ class ProcessTest(object):
                     if snappi_metrics:
                         for key in snappi_metrics:
                             page_data[key] = snappi_metrics[key]
-                try:
-                    os.unlink(metrics_file)
-                except Exception:
-                    pass
         except Exception:
             logging.exception('Error merging snappi trace page data')
 
