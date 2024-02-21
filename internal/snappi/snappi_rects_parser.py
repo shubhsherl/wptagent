@@ -54,6 +54,7 @@ def parse_rectangles(trace_data, navigation_start_ts):
 
             event_info = {
                 "type": "image",
+                "domNodeId": event_data["domNodeID"],
                 "imageUrl": event_data["imageUrl"],
                 "timestamp": event_data["timestamp"],
                 "size": event_data["visualSize"]
@@ -69,6 +70,8 @@ def parse_rectangles(trace_data, navigation_start_ts):
 
             event_info = {
                 "type": "text",
+                "imageUrl": None,
+                "domNodeId": event_data["domNodeID"],
                 "timestamp": event_data["timestamp"],
                 "size": event_data["visualSize"]
             }
