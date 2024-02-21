@@ -98,8 +98,9 @@ def generate_page_events(trace_data, rects, navigation_start_event, event_names)
             largest_area = area
             snappi_lcp = events[0]
 
-        if not all_images_painted or events[0]["timestamp"] > all_images_painted["timestamp"]:
-            all_images_painted = events[0]
+        if events[0]["type"] == "image":
+            if not all_images_painted or events[0]["timestamp"] > all_images_painted["timestamp"]:
+                all_images_painted = events[0]
 
     for event_name, event_info in found_events.items():
         if event_name == "navigationStart":
@@ -143,7 +144,7 @@ def generate_page_events(trace_data, rects, navigation_start_event, event_names)
             }
         })
 
-    result["page_events"] = sorted(result["page_events"], 
+    result["page_events"] = sorted(result["page_events"],
                                    key=lambda x: x.get("timestamp", 0) if not x.get("message") else float('inf'))
 
     return result

@@ -1,19 +1,45 @@
 import json
 from collections import defaultdict
 
-def is_image_paint_timing_event(event):
+def event_matches_name_and_required_keys(event, event_name, *extra_required_keys):
     if "args" not in event or "data" not in event["args"]:
+        return False
+    if event.get("name") != event_name:
         return False
 
     event_data = event["args"]["data"]
-    required_keys = ["visualX", "visualY", "visualWidth", "visualHeight", "visualSize"]
+
+    required_keys = ["visualX", "visualY", "visualWidth", "visualHeight", "visualSize", *extra_required_keys]
 
     return (
-        event.get("name") == "ImagePaint::Timing" and
-        "imageUrl" in event_data and
         all(key in event_data for key in required_keys) and
         event.get("ph") == "R"
     )
+
+def is_image_paint_timing_event(event):
+    return event_matches_name_and_required_keys(event, "ImagePaint::Timing", "imageUrl")
+
+def is_text_paint_timing_event(event):
+    return event_matches_name_and_required_keys(event, "TextPaint::Timing")
+
+def visual_rect_for_event(event):
+    event_data = event["args"]["data"]
+
+    rect = {
+        "x": event_data["visualX"],
+        "y": event_data["visualY"],
+        "width": event_data["visualWidth"],
+        "height": event_data["visualHeight"]
+    }
+
+    rect["area"] = rect["width"] * rect["height"]
+    return rect
+
+def set_timestamp_for_event(event, navigation_start_ts):
+    relative_ts = (int(event["ts"]) - navigation_start_ts) / 1000
+    relative_ts = round(relative_ts, 2)
+
+    event["args"]["data"]["timestamp"] = relative_ts
 
 def parse_rectangles(trace_data, navigation_start_ts):
     rects_dict = defaultdict(list)
@@ -21,27 +47,37 @@ def parse_rectangles(trace_data, navigation_start_ts):
 
     for event in trace_data["traceEvents"]:
         if is_image_paint_timing_event(event):
+            rect = visual_rect_for_event(event)
+            set_timestamp_for_event(event, navigation_start_ts)
+
             event_data = event["args"]["data"]
 
-            rect = {
-                "x": event_data["visualX"],
-                "y": event_data["visualY"],
-                "width": event_data["visualWidth"],
-                "height": event_data["visualHeight"]
-            }
-            rect["area"] = rect["width"] * rect["height"]
-
-            relative_ts = (int(event["ts"]) - navigation_start_ts) / 1000
-            event_data.update({"timestamp": round(relative_ts, 2)})
-
             event_info = {
+                "type": "image",
                 "imageUrl": event_data["imageUrl"],
                 "timestamp": event_data["timestamp"],
                 "size": event_data["visualSize"]
             }
-
             rect_key = tuple(rect.items())
             rects_dict[rect_key].append(event_info)
+
+        elif is_text_paint_timing_event(event):
+            rect = visual_rect_for_event(event)
+            set_timestamp_for_event(event, navigation_start_ts)
+
+            event_data = event["args"]["data"]
+
+            event_info = {
+                "type": "text",
+                "timestamp": event_data["timestamp"],
+                "size": event_data["visualSize"]
+            }
+            rect_key = tuple(rect.items())
+            rects_dict[rect_key].append(event_info)
+
+        else:
+            continue
+
 
     for rect_key, events in rects_dict.items():
         unique_events = []
