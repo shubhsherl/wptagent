@@ -17,7 +17,7 @@ event_names = [
 
 def filter_trace_events(trace_data, event_names):
     filtered_trace_data = {"traceEvents": []}
-    event_names += ["navigationStart", "ImagePaint::Timing"]
+    event_names += ["navigationStart", "ImagePaint::Timing", "TextPaint::Timing"]
 
     for event in trace_data["traceEvents"]:
         if event.get("name") in event_names:
@@ -40,7 +40,7 @@ def snappi_parse_trace(trace_file_dict):
         "snappi_rects": rects,
         "snappi_pageEvents": result["page_events"]
     }
-    
+
     return output
 
 if __name__ == "__main__":
