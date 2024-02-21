@@ -136,7 +136,7 @@ def generate_page_events(trace_data, rects, navigation_start_event, event_names)
 
     if all_images_painted:
         result["page_events"].append({
-            "event_name": "allImagesPainted",
+            "event_name": "snappiAcp",
             "timestamp": round(all_images_painted["timestamp"], 2),
             "data": {
                 "imageUrl": all_images_painted["imageUrl"],
