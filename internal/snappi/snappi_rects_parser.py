@@ -41,6 +41,12 @@ def set_timestamp_for_event(event, navigation_start_ts):
 
     event["args"]["data"]["timestamp"] = relative_ts
 
+def is_event_unique(unique_events, event):
+    image_matches = lambda e: event["type"] == "image" and event["imageUrl"] == e["imageUrl"]
+    size_matches = lambda e: event["size"] == e["size"]
+
+    return not any(image_matches(e) and size_matches(e) for e in unique_events)
+
 def parse_rectangles(trace_data, navigation_start_ts):
     rects_dict = defaultdict(list)
     rects_list = []
@@ -70,7 +76,6 @@ def parse_rectangles(trace_data, navigation_start_ts):
 
             event_info = {
                 "type": "text",
-                "imageUrl": None,
                 "domNodeId": event_data["domNodeID"],
                 "timestamp": event_data["timestamp"],
                 "size": event_data["visualSize"]
@@ -81,11 +86,10 @@ def parse_rectangles(trace_data, navigation_start_ts):
         else:
             continue
 
-
     for rect_key, events in rects_dict.items():
         unique_events = []
         for event in events:
-            if not any(e["imageUrl"] == event["imageUrl"] and e["size"] == event["size"] for e in unique_events):
+            if is_event_unique(unique_events, event):
                 unique_events.append(event)
 
         min_timestamp = min(event["timestamp"] for event in unique_events)
