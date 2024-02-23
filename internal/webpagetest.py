@@ -372,7 +372,7 @@ class WebPageTest(object):
                         needs_block = True
             except Exception:
                 pass
-            if needs_block:
+            if needs_block and platform.system() == "Linux":
                 subprocess.call(['sudo', 'route', 'add', '169.254.169.254', 'gw', '127.0.0.1', 'lo'])
                 self.metadata_blocked = True
 
