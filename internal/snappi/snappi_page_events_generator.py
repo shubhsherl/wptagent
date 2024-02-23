@@ -65,11 +65,22 @@ def add_navigation_start_event_info(event, frame, result):
         "timestamp": 0
     })
 
+# Function to check if two rectangles overlap
+def rectangle_overlaps(rect1, rect2):
+    # Correcting the indices for list elements
+    return not (rect1[0] + rect1[2] <= rect2[0] or
+                rect1[0] >= rect2[0] + rect2[2] or
+                rect1[1] + rect1[3] <= rect2[1] or
+                rect1[1] >= rect2[1] + rect2[3])
+
 def generate_page_events(trace_data, rects, navigation_start_event, event_names):
     largest_area = 0
     snappi_lcp = None
-    all_images_painted = None
+    all_content_painted = None
     navigation_start_ts = navigation_start_event["ts"]
+    processed_nodes = set()
+    IDLE_PERIOD = 2 * 1000  # Multi-second period of idleness in milliseconds
+    prev_event_ts_ms = 0
 
     found_events = {}
 
@@ -84,23 +95,53 @@ def generate_page_events(trace_data, rects, navigation_start_event, event_names)
     found_events["navigationStart"]["frame"] = ns_frame
 
     result = {"rects": [], "page_events": []}
+    post_load_popups = []
 
     for rect_data in rects:
         rect = [rect_data["x"], rect_data["y"], rect_data["width"], rect_data["height"]]
         events = rect_data["events"]
         area = rect[2] * rect[3]
-        result["rects"].append({
-            "rect": {"x": rect[0], "y": rect[1], "width": rect[2], "height": rect[3]},
-            "area": area, "events": events
-        })
+        dom_node_id = events[0]["domNodeId"]
 
-        if area > largest_area:
-            largest_area = area
-            snappi_lcp = events[0]
+        if (area, dom_node_id) not in processed_nodes:
+            processed_nodes.add((area, dom_node_id))
 
-        if events[0]["type"] == "image":
-            if not all_images_painted or events[0]["timestamp"] > all_images_painted["timestamp"]:
-                all_images_painted = events[0]
+            # Detect post load popups based on idleness and overlapping count
+            is_post_load_popup = False
+            print(f"Timestamps: prev_event_ts_ms={prev_event_ts_ms}, current_event_ts={events[0]['timestamp']}")
+            idle_time = events[0]["timestamp"] - prev_event_ts_ms
+            if idle_time >= IDLE_PERIOD:
+                prev_event_ts_ms = events[0]["timestamp"]
+                overlapping_count = sum([
+                    True for rect2_data in rects
+                    if rectangle_overlaps(rect, [rect2_data["x"], rect2_data["y"], rect2_data["width"], rect2_data["height"]])
+                ])
+                if overlapping_count >= 3:
+                    is_post_load_popup = True
+                    post_load_popups.append({
+                        "domNodeId": dom_node_id,
+                        "timestamp": events[0]["timestamp"],
+                        "overlapping_count": overlapping_count
+                    })
+                    print(f"Post-load popup detected for domNodeId {dom_node_id} with timestamp {events[0]['timestamp']} and overlapping_count {overlapping_count}")
+                else:
+                    print(f"Possible post-load popup for domNodeId {dom_node_id} with timestamp {events[0]['timestamp']} was not detected due to insufficient overlapping count: {overlapping_count}")
+            else:
+                print(f"No post-load popup for domNodeId {dom_node_id} with timestamp {events[0]['timestamp']} due to no idle period of {idle_time:.2f}")
+
+            if not is_post_load_popup:  # Only process the event if it's not a post load popup
+                result["rects"].append({
+                    "rect": {"x": rect[0], "y": rect[1], "width": rect[2], "height": rect[3]},
+                    "area": area, "events": events
+                })
+                if area > largest_area:
+                    largest_area = area
+                    snappi_lcp = events[0]
+
+                # Check for latest painted event, either "image" or "text"
+                if events[0]["type"] in ["image", "text"]:
+                    if not all_content_painted or events[0]["timestamp"] > all_content_painted["timestamp"]:
+                        all_content_painted = events[0]
 
     for event_name, event_info in found_events.items():
         if event_name == "navigationStart":
@@ -134,17 +175,21 @@ def generate_page_events(trace_data, rects, navigation_start_event, event_names)
             "data": snappi_lcp,
         })
 
-    if all_images_painted:
+    if all_content_painted:
         result["page_events"].append({
             "event_name": "snappiAcp",
-            "timestamp": round(all_images_painted["timestamp"], 2),
+            "timestamp": round(all_content_painted["timestamp"], 2),
             "data": {
-                "imageUrl": all_images_painted["imageUrl"],
-                "size": all_images_painted["size"]
+                "elementType": all_content_painted["type"],
+                "elementUrl": all_content_painted["imageUrl"] if all_content_painted["type"] == "image" else "",
+                "size": all_content_painted["size"]
             }
         })
 
     result["page_events"] = sorted(result["page_events"],
                                    key=lambda x: x.get("timestamp", 0) if not x.get("message") else float('inf'))
 
+    result["popups_found"] = post_load_popups
+
     return result
+

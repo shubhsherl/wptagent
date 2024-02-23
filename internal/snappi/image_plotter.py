@@ -8,8 +8,8 @@ COLORS = {
 
 def plot_rects(rects, output_filepath):
     fig, ax = plt.subplots()
-    ax.set_xlim(0, 1200)
-    ax.set_ylim(0, 1000)
+    ax.set_xlim(0, 1366)
+    ax.set_ylim(0, 768)
     ax.invert_yaxis()
 
     for rect_data in rects:
@@ -30,10 +30,10 @@ def plot_rects(rects, output_filepath):
 
         ax.add_patch(Rectangle((rect["x"], rect["y"]), rect["width"], rect["height"], linewidth=1, edgecolor=color, facecolor='none'))
 
-        if color == 'g' and has_multiple_paint_events:
-            timestamp_annotations = ", ".join([f"{event['timestamp']:.0f}" for event in events])
-            ax.annotate(timestamp_annotations, (rect["x"] + rect["width"] / 2, rect["y"] + rect["height"] / 2), color=color, weight='bold', fontsize=8, ha='center', va='center')
-        elif color == 'r':
-            ax.annotate(f'{events[0]["timestamp"]:.0f}', (rect["x"] + rect["width"] / 2, rect["y"] + rect["height"] / 2), color=color, weight='bold', fontsize=8, ha='center', va='center')
+        if has_multiple_paint_events:
+            domnodeid_annotations = ", ".join([f"{event['domNodeId']}" for event in events])
+            ax.annotate(domnodeid_annotations, (rect["x"] + rect["width"] - 3, rect["y"] + 3), color='black', fontsize=6, ha='right', va='bottom')
+        else:
+            ax.annotate(f"{events[0]['domNodeId']}", (rect["x"] + rect["width"] - 3, rect["y"] + 3), color='black', fontsize=6, ha='right', va='bottom')
 
     plt.savefig(output_filepath)

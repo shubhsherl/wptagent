@@ -12,7 +12,8 @@ else:
 event_names = [
      "firstContentfulPaint","firstMeaningfulPaint", "firstPaint",
     "LargestTextPaint::Candidate","UpdateLayoutTree",
-     "FrameStartedLoading", "ResourceReceiveResponse"
+     "FrameStartedLoading", "ResourceReceiveResponse",
+     "CommitLoad", "loadEventStart", "loadEventEnd"
 ]
 
 def filter_trace_events(trace_data, event_names):
@@ -57,12 +58,8 @@ if __name__ == "__main__":
         navigation_start_event = extract_navigation_start(trace_data_filtered)
         rects = parse_rectangles(trace_data_filtered, navigation_start_event["ts"])
         result = generate_page_events(trace_data_filtered, rects, navigation_start_event, event_names)
-        output = {
-            "rects": rects,
-            "pageEvents": result["page_events"]
-        }
 
         if output_graph_file_path is not None:
             plot_rects(rects, output_graph_file_path)
 
-        print(json.dumps(output, indent=2))
+        print(json.dumps(result, indent=2))
